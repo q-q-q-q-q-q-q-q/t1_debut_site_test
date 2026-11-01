@@ -22,3 +22,7 @@ Thumbs.db
 
 # Env
 .env
+
+# Allure
+allure-results/
+allure-report/

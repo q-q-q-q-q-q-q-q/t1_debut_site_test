@@ -1,5 +1,6 @@
+import pytest
 from playwright.sync_api import Playwright, sync_playwright, expect
-
+import allure
 FIELDS = [
     "Фамилия",
     "Имя",
@@ -22,7 +23,10 @@ def check_field(page, name: str) -> None:
 
     label.click()
 
-    expect(input_field).to_be_focused(timeout=2000) #при нажатии на label {name} кнопка не стала активной
+    try:
+        expect(input_field).to_be_focused(timeout=1000) #при нажатии на label {name} кнопка не стала активной
+    except:
+        pytest.fail(f'Поле «{name}» не получило фокус после клика по label')
 
 
 def test_run(playwright: Playwright) -> None:
@@ -31,6 +35,9 @@ def test_run(playwright: Playwright) -> None:
     #    context = browser.new_context()
     #
     #    за все что ниже - извините, очень хотелось в докер красивенько все залить
+
+
+
     browser = playwright.chromium.launch(
         headless=True,
         args=[
@@ -63,13 +70,14 @@ def test_run(playwright: Playwright) -> None:
     page = context.new_page()
 
     page.goto("https://career.t1.ru/debut")
-    page.wait_for_load_state("networkidle")
+    with allure.step('Сайт получен'):
+        page.goto("https://career.t1.ru/debut", wait_until="domcontentloaded")
 
     page.get_by_text("Отправить", exact=False).first.scroll_into_view_if_needed()
 
     for name in FIELDS:
-        check_field(page, name)
+        with allure.step(f'Проверка прожатия "{name}"'):
+            check_field(page, name)
 
     context.close()
     browser.close()
-

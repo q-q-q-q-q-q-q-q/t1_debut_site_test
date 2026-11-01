@@ -4,7 +4,6 @@ services:
     init: true
     ipc: host
     volumes:
-      - ./test-results:/app/test-results
-      - ./playwright-report:/app/playwright-report
+      - ./allure-results:/app/allure-results
     environment:
       - CI=true
